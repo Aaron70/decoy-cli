@@ -2,9 +2,13 @@ module github.com/aaron70/decoy-cli
 
 go 1.26.2
 
-require github.com/spf13/cobra v1.10.2
+require (
+	github.com/aaron70/goaty v0.0.0-20260528191254-f1e3f3108e70
+	github.com/spf13/cobra v1.10.2
+)
 
 require (
+	github.com/aaron70/decoy v0.0.0-20260528011422-a42ff25c208d // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
 )

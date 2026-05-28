@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/aaron70/decoy-cli/cli"
+	"github.com/aaron70/decoy-cli/cmd/template"
 	"github.com/spf13/cobra"
 )
 
@@ -12,11 +13,13 @@ func createRootCommand(cli *cli.CLI) *cobra.Command {
 		Long:  "Decoy is a command-line utility for creating and ingesting mock data trough templates and runners. Templates support dynamic data injection using the Go Template Engine, and runners let you ingest the generated data into your application.",
 	}
 
+	command.AddCommand(template.CreateTemplateCommand(cli))
+
 	return command
 }
 
 func Execute() error {
-	cli, err := cli.NewCLI()
+	cli, err := cli.NewCLI("./decoy")
 	if err != nil {
 		return err
 	}
