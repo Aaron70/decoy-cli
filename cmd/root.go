@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/aaron70/decoy-cli/cli"
 	"github.com/aaron70/decoy-cli/cmd/runner"
 	"github.com/aaron70/decoy-cli/cmd/template"
@@ -20,8 +23,18 @@ func createRootCommand(cli *cli.CLI) *cobra.Command {
 	return command
 }
 
+func configDir() string {
+		var basePath string
+    if dir := os.Getenv("XDG_CONFIG_HOME"); dir != "" {
+        basePath = dir
+    }
+    home, _ := os.UserHomeDir()
+		basePath = home
+    return filepath.Join(basePath, ".config", "decoy")
+}
+
 func Execute() error {
-	cli, err := cli.NewCLI("./decoy")
+	cli, err := cli.NewCLI(configDir())
 	if err != nil {
 		return err
 	}
