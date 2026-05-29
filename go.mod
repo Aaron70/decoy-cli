@@ -3,7 +3,7 @@ module github.com/aaron70/decoy-cli
 go 1.26.2
 
 require (
-	github.com/aaron70/decoy v0.0.0-20260528011422-a42ff25c208d
+	github.com/aaron70/decoy v0.0.0-20260529042819-ff2150c785a0
 	github.com/aaron70/goaty v0.0.0-20260528191254-f1e3f3108e70
 	github.com/spf13/cobra v1.10.2
 )
