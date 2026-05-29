@@ -42,16 +42,17 @@ func createStoreCommand(cli *cli.CLI) *cobra.Command {
 				}
 			} else {
 				fmt.Printf("Updating template %q:\n%s\n", name, oldTmpl)
-				tmpl, err = cli.TemplateSvc.Update(name, tmpl)
+				entity, err := cli.TemplateSvc.Update(name, tmpl)
 				if err != nil {
 					return err
 				}
+				tmpl = entity.Tmpl
 				fmt.Printf("to:\n%s\n", tmpl)
 				return nil
 			}
 
-			tmpl, err = cli.TemplateSvc.Save(name, tmpl)
-			fmt.Printf("Saving new template %q:\n%s\n", name, tmpl)
+			entity, err := cli.TemplateSvc.Save(name, tmpl)
+			fmt.Printf("Saving new template %q:\n%s\n", name, entity.Tmpl)
 
 			return err
 		},

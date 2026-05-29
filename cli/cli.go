@@ -5,6 +5,7 @@ import (
 	"path"
 
 	"github.com/aaron70/decoy"
+	"github.com/aaron70/decoy-cli/internal/model"
 	"github.com/aaron70/decoy-cli/internal/services"
 	"github.com/aaron70/goaty/errors"
 	"github.com/aaron70/goaty/repositories"
@@ -17,18 +18,11 @@ type CLI struct {
 }
 
 func NewCLI(basePath string) (*CLI, error) {
-	marshal := func(s string) ([]byte, error) {
-		return []byte(s), nil
-	}
-	unmarshal := func(b []byte) (string, error) {
-		return string(b), nil
-	}
-
-	templateRepo, err := repositories.NewFSRepositoryWithSerializer[string,](path.Join(basePath, "templates"), marshal, unmarshal)
+	templateRepo, err := repositories.NewFSRepository[string,model.Template](path.Join(basePath, "templates"))
 	if err != nil {
 		return nil, errors.NewError(nil, err, "Couldn't create the templates repository")
 	}
-	runnerRepo, err := repositories.NewFSRepositoryWithSerializer[string, ](path.Join(basePath, "runners"), marshal, unmarshal)
+	runnerRepo, err := repositories.NewFSRepository[string, string](path.Join(basePath, "runners"))
 	if err != nil {
 		return nil, errors.NewError(nil, err, "Couldn't create the runners repository")
 	}
