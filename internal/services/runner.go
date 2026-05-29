@@ -74,6 +74,7 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 
 	pool, err := concurrency.NewPool(ctx,
 		concurrency.NewPoolWithMaxWorkers[string, error](workers),
+		concurrency.NewPoolWithBufferSize[string, error](n),
 	)
 	if err != nil {
 		return err
