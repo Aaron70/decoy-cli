@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/aaron70/decoy-cli/cli"
+	"github.com/aaron70/decoy-cli/cmd/runner"
 	"github.com/aaron70/decoy-cli/cmd/template"
 	"github.com/spf13/cobra"
 )
@@ -14,6 +15,7 @@ func createRootCommand(cli *cli.CLI) *cobra.Command {
 	}
 
 	command.AddCommand(template.CreateTemplateCommand(cli))
+	command.AddCommand(runner.CreateRunnerCommand(cli))
 
 	return command
 }
