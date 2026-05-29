@@ -18,11 +18,11 @@ type CLI struct {
 }
 
 func NewCLI(basePath string) (*CLI, error) {
-	templateRepo, err := repositories.NewFSRepository[string,model.Template](path.Join(basePath, "templates"))
+	templateRepo, err := repositories.NewFSRepository[string, model.Template](path.Join(basePath, "templates"))
 	if err != nil {
 		return nil, errors.NewError(nil, err, "Couldn't create the templates repository")
 	}
-	runnerRepo, err := repositories.NewFSRepository[string, string](path.Join(basePath, "runners"))
+	runnerRepo, err := repositories.NewFSRepository[string, model.Runner](path.Join(basePath, "runners"))
 	if err != nil {
 		return nil, errors.NewError(nil, err, "Couldn't create the runners repository")
 	}
@@ -32,7 +32,7 @@ func NewCLI(basePath string) (*CLI, error) {
 	}
 	return &CLI{
 		TemplateSvc: services.NewTemplate(templateRepo),
-		RunnerSvc:   services.NewRunner(runnerRepo),
+		RunnerSvc:   services.NewRunner(runnerRepo, decoy),
 		Decoy:       decoy,
 	}, nil
 }
