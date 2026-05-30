@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/aaron70/decoy"
 	"github.com/aaron70/decoy-cli/internal/model"
@@ -67,62 +68,73 @@ func (svc Runner) Delete(id string) (model.Runner, error) {
 func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data any, n int, workers int) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	runner, exists := svc.Runners[_type]
 	if !exists {
 		return fmt.Errorf("Invalid Runner type %q, not registered", _type)
 	}
 
-	pool, err := concurrency.NewPool(ctx,
-		concurrency.NewPoolWithMaxWorkers[string, error](workers),
-		concurrency.NewPoolWithBufferSize[string, error](n),
+	templateCompiled, err := svc.Decoy.CompileTemplate(tmpl,
+		decoy.WithTemplateNamed("template"),
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("TemplateParseError: %w", err)
 	}
 
-	tasks := make(chan string, n)
-	errors := make(chan error, 1)
+	runnerCompiled, err := svc.Decoy.CompileTemplate(config,
+		decoy.WithTemplateNamed("runner"),
+	)
+	if err != nil {
+		return fmt.Errorf("RunnerConfigurationParseError: %w", err)
+	}
 
-	go func() {
-		defer close(tasks)
+	var wg sync.WaitGroup
+	records := make(chan string, n)
+	errs := make(chan error, n)
+
+	// TODO: Consider using a pool of workers
+	wg.Go(func() {
+		defer close(records)
+
+		buffer := new(bytes.Buffer)
 		for range n {
-
-			parsedTemplate := bytes.NewBufferString("")
-			err := svc.Decoy.ParseTemplate(parsedTemplate, tmpl,
-				decoy.WithTemplateNamed("template"),
-				decoy.WithData(data),
-			)
+			buffer.Reset()
+			err := templateCompiled.Execute(buffer, data)
 			if err != nil {
-				channels.Send(ctx, errors, fmt.Errorf("TemplateParseError: %w", err))
+				channels.Send(ctx, errs, err)
 				return
 			}
 
 			runnerData := map[string]any{
-				"Template": parsedTemplate,
+				"Template":   buffer.String(),
+				"Times":      n,
+				"Goroutines": workers,
 			}
-			parsedConfiguration := bytes.NewBufferString("")
+			buffer.Reset()
 
-			err = svc.Decoy.ParseTemplate(parsedConfiguration, config,
-				decoy.WithTemplateNamed("runner"),
-				decoy.WithData(runnerData),
-			)
+			err = runnerCompiled.Execute(buffer, runnerData)
 			if err != nil {
-				channels.Send(ctx, errors, fmt.Errorf("RunnerConfigurationParseError: %w", err))
+				channels.Send(ctx, errs, err)
 				return
 			}
 
-			err = channels.Send(ctx, tasks, parsedConfiguration.String())
+			err = channels.Send(ctx, records, buffer.String())
 			if err != nil {
-				channels.Send(ctx, errors, err)
+				channels.Send(ctx, errs, err)
 				return
 			}
 		}
-	}()
+	})
 
-	pool.PushTasks(tasks, func(ctx context.Context, config string) {
+	pool, _ := concurrency.NewPool(ctx,
+		concurrency.NewPoolWithMaxWorkers[string](workers),
+		concurrency.NewPoolWithBufferSize[string](n),
+	)
+
+	err = pool.PushTasks(records, func(ctx context.Context, config string) {
 		res, err := runner.Run(config)
 		if err != nil {
-			channels.Send(ctx, errors, err)
+			channels.Send(ctx, errs, err)
 			return
 		}
 
@@ -130,24 +142,27 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 			fmt.Fprintf(w, "%s", res)
 		}
 	})
+	if err != nil {
+		return err
+	}
+
 	go func() {
 		pool.Wait()
-		close(errors)
+		close(errs)
 	}()
 
 	var errCtx error
 	open := true
 	for open {
-		err, open, errCtx = channels.Recv(ctx, errors)
+		err, open, errCtx = channels.Recv(ctx, errs)
 		if errCtx != nil {
-			close(errors)
 			return errCtx
 		}
 		if err != nil {
-			close(errors)
 			return err
 		}
 	}
 
 	return nil
 }
+

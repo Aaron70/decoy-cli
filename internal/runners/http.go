@@ -37,6 +37,7 @@ type HttpRunnerOutput struct {
 
 func (o HttpRunnerOutput) String() string {
 	rawBody, _ := io.ReadAll(o.Response.Body)
+	defer o.Response.Body.Close()
 	if rawBody != nil {
 		return fmt.Sprintf("Status Code: %d, Body: %s", o.Response.StatusCode, string(rawBody))
 	} else {

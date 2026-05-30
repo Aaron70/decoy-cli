@@ -1,4 +1,6 @@
 module github.com/aaron70/decoy-cli
+replace github.com/aaron70/decoy => /home/aaronv/personal/development/go/decoy
+replace github.com/aaron70/goaty => /home/aaronv/personal/development/go/goaty
 
 go 1.26.2
 
