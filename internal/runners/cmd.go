@@ -1,6 +1,7 @@
 package runners
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"slices"
@@ -38,12 +39,12 @@ func NewCmdRunner() Runner {
 	}
 }
 
-func (r CmdRunner) Run(config *CmdRunnerConfig) (*CmdRunnerOutput, error) {
+func (r CmdRunner) Run(ctx context.Context, config *CmdRunnerConfig) (*CmdRunnerOutput, error) {
 	args, err := splitCommand(string(*config))
 	if err != nil {
 		return nil, err
 	}
-	cmd := exec.Command(args[0], args[1:]...)
+	cmd := exec.CommandContext(ctx, args[0], args[1:]...)
 
 	outerr, err := cmd.CombinedOutput()
 	if err != nil {

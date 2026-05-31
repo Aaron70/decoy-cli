@@ -2,6 +2,7 @@ package runners
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -62,8 +63,8 @@ func NewHttpRunner() Runner {
 	}
 }
 
-func (r HttpRunner) Run(config *HttpRunnerConfig) (*HttpRunnerOutput, error) {
-	request, err := http.NewRequest(config.Method, config.Url, bytes.NewReader(config.Body))
+func (r HttpRunner) Run(ctx context.Context, config *HttpRunnerConfig) (*HttpRunnerOutput, error) {
+	request, err := http.NewRequestWithContext(ctx, config.Method, config.Url, bytes.NewReader(config.Body))
 	if err != nil {
 		return nil, err
 	}

@@ -1,5 +1,7 @@
 package runners
 
+import "context"
+
 type RunnerConfig interface {
 	Validate() error
 }
@@ -9,11 +11,11 @@ type RunnerOutput interface {
 }
 
 type runner[C RunnerConfig, O RunnerOutput] interface {
-	Run(config C) (O, error)
+	Run(ctx context.Context, config C) (O, error)
 }
 
 type Runner interface {
-	Run(config string) (any, error)
+	Run(ctx context.Context, config string) (any, error)
 }
 
 type runnerWrapper[C RunnerConfig, O RunnerOutput] struct {
@@ -21,7 +23,7 @@ type runnerWrapper[C RunnerConfig, O RunnerOutput] struct {
 	ConfigDeserializer func(string) (C, error)
 }
 
-func (w runnerWrapper[C, O]) Run(config string) (any, error) {
+func (w runnerWrapper[C, O]) Run(ctx context.Context, config string) (any, error) {
 	c, err := w.ConfigDeserializer(config)
 	if err != nil {
 		return nil, err
@@ -31,7 +33,7 @@ func (w runnerWrapper[C, O]) Run(config string) (any, error) {
 		return nil, err
 	}
 
-	res, err := w.Runner.Run(c)
+	res, err := w.Runner.Run(ctx, c)
 	if err != nil {
 		return nil, err
 	}

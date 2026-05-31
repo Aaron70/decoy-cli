@@ -132,7 +132,7 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 	)
 
 	err = pool.PushTasks(records, func(ctx context.Context, config string) {
-		res, err := runner.Run(config)
+		res, err := runner.Run(ctx, config)
 		if err != nil {
 			channels.Send(ctx, errs, err)
 			return
