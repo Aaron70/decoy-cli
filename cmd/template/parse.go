@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func createParseCommand(cli *cli.CLI) *cobra.Command {
+func CreateParseCommand(cli *cli.CLI) *cobra.Command {
 	var (
 		name, tmpl, file, data string
 		err                    error

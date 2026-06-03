@@ -14,7 +14,7 @@ func CreateRunnerCommand(cli *cli.CLI) *cobra.Command {
 	command.AddCommand(createStoreCommand(cli))
 	command.AddCommand(createGetCommand(cli))
 	command.AddCommand(createDeleteCommand(cli))
-	command.AddCommand(createRunCommand(cli))
+	command.AddCommand(CreateRunCommand(cli))
 
 	return command
 }

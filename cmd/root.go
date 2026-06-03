@@ -18,7 +18,9 @@ func createRootCommand(cli *cli.CLI) *cobra.Command {
 	}
 
 	command.AddCommand(template.CreateTemplateCommand(cli))
+	command.AddCommand(template.CreateParseCommand(cli))
 	command.AddCommand(runner.CreateRunnerCommand(cli))
+	command.AddCommand(runner.CreateRunCommand(cli))
 
 	return command
 }

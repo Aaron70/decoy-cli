@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func createRunCommand(cli *cli.CLI) *cobra.Command {
+func CreateRunCommand(cli *cli.CLI) *cobra.Command {
 	var (
 		_type services.RunnerType
 		tmpl, file, data, config string
