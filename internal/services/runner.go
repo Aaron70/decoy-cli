@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"runtime"
 	"sync"
 
 	"github.com/aaron70/decoy"
@@ -69,6 +70,9 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
 	runner, exists := svc.Runners[_type]
 	if !exists {
 		return fmt.Errorf("Invalid Runner type %q, not registered", _type)
@@ -88,81 +92,101 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 		return fmt.Errorf("RunnerConfigurationParseError: %w", err)
 	}
 
-	var wg sync.WaitGroup
-	records := make(chan string, n)
-	errs := make(chan error, n)
+	bufferPool := sync.Pool{
+		New: func() any { return new(bytes.Buffer) },
+	}
 
-	// TODO: Consider using a pool of workers
-	wg.Go(func() {
-		defer close(records)
+	mapsPool := sync.Pool{
+		New: func() any { return map[string]any{"Goroutines": workers, "Times": n} },
+	}
 
-		buffer := new(bytes.Buffer)
-		for range n {
-			buffer.Reset()
-			err := templateCompiled.Execute(buffer, data)
-			if err != nil {
-				channels.Send(ctx, errs, err)
-				return
-			}
+	templatePool, err := concurrency.NewPool(ctx, func(ctx context.Context, task string) (string, error) {
+		buffer := bufferPool.Get().(*bytes.Buffer)
+		buffer.Reset()
+		defer bufferPool.Put(buffer)
 
-			runnerData := map[string]any{
-				"Template":   buffer.String(),
-				"Times":      n,
-				"Goroutines": workers,
-			}
-			buffer.Reset()
-
-			err = runnerCompiled.Execute(buffer, runnerData)
-			if err != nil {
-				channels.Send(ctx, errs, err)
-				return
-			}
-
-			err = channels.Send(ctx, records, buffer.String())
-			if err != nil {
-				channels.Send(ctx, errs, err)
-				return
-			}
-		}
-	})
-
-	pool, _ := concurrency.NewPool(ctx,
-		concurrency.NewPoolWithMaxWorkers[string](workers),
-		concurrency.NewPoolWithBufferSize[string](n),
-	)
-
-	err = pool.PushTasks(records, func(ctx context.Context, config string) {
-		res, err := runner.Run(ctx, config)
+		err := templateCompiled.Execute(buffer, data)
 		if err != nil {
-			channels.Send(ctx, errs, err)
-			return
+			return "", err
 		}
 
-		if w != nil {
-			fmt.Fprintf(w, "%s", res)
+		runnerData := mapsPool.Get().(map[string]any)
+		defer func() {
+			runnerData["Template"] = nil
+			mapsPool.Put(runnerData)
+		}()
+		runnerData["Template"] = buffer.String()
+		buffer.Reset()
+
+		err = runnerCompiled.Execute(buffer, runnerData)
+		if err != nil {
+			return "", err
 		}
-	})
+		return buffer.String(), nil
+	},
+		concurrency.NewPoolWithMaxWorkers(min(workers, runtime.NumCPU())),
+		concurrency.NewPoolWithBufferSize(n),
+	)
 	if err != nil {
 		return err
 	}
 
-	go func() {
-		pool.Wait()
-		close(errs)
-	}()
 
-	var errCtx error
-	open := true
-	for open {
-		err, open, errCtx = channels.Recv(ctx, errs)
+	recordsPool, err := concurrency.NewPool(ctx, runner.Run,
+		concurrency.NewPoolWithMaxWorkers(workers),
+		concurrency.NewPoolWithBufferSize(n),
+	)
+	if err != nil {
+		return err
+	}
+
+	errs := make(chan error, n)
+	templates, errTemplates := templatePool.ResultsErr()
+	records, errRecords := recordsPool.ResultsErr()
+	mergedErrs := channels.Merge(ctx, n, errs, errTemplates, errRecords)
+
+	wg.Go(func() {
+		templatePool.ProduceTasks(n, nil)
+		templatePool.Close()
+		templatePool.Wait()
+	})
+
+	wg.Go(func() {
+		recordsPool.RecvTasks(templates)
+		recordsPool.Close()
+		recordsPool.Wait()
+	})
+
+	
+
+	wg.Go(func() {
+		defer close(errs)
+		for {
+			record, open, err := channels.Recv(ctx, records)
+			if err != nil {
+				channels.Send(ctx, errs, err)
+				return
+			}
+			if !open {
+				return
+			}
+
+			fmt.Fprintf(w, "%v", record)
+		}
+	})
+
+	for {
+		err, open, errCtx := channels.Recv(ctx, mergedErrs)
+		if err != nil {
+			return err
+		}
 		if errCtx != nil {
 			return errCtx
 		}
-		if err != nil {
-			return err
+		if !open {
+			break
 		}
 	}
 
 	return nil
 }
-

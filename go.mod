@@ -1,11 +1,13 @@
 module github.com/aaron70/decoy-cli
+
 replace github.com/aaron70/decoy => /home/aaronv/personal/development/go/decoy
+
 replace github.com/aaron70/goaty => /home/aaronv/personal/development/go/goaty
 
 go 1.26.2
 
 require (
-	github.com/aaron70/decoy v0.0.0-20260529042819-ff2150c785a0
+	github.com/aaron70/decoy v0.0.0-20260531070947-a31249eadea7
 	github.com/aaron70/goaty v0.0.0-20260528191254-f1e3f3108e70
 	github.com/spf13/cobra v1.10.2
 )
