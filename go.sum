@@ -1,3 +1,7 @@
+github.com/aaron70/decoy v0.0.0-20260603030503-786382a1a717 h1:Kmd1yNP8LX0Zxe+Q7iNMSm7El7zUV71lxA7ZyZBJBv8=
+github.com/aaron70/decoy v0.0.0-20260603030503-786382a1a717/go.mod h1:F2wWotMEPWK1bqXzx396IdgdSv2PWpdICAqc8Y2mwig=
+github.com/aaron70/goaty v0.0.0-20260603030410-cb18a32125d3 h1:qgrKFfO2Aa+bpcw/sRK0JaNm/oBjvzm2mLbzQSIugyQ=
+github.com/aaron70/goaty v0.0.0-20260603030410-cb18a32125d3/go.mod h1:w+HNF8HsHYO95aID0c7vLA7bUZqSVJjAHOztbu0rVaQ=
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
