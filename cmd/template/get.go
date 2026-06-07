@@ -12,6 +12,11 @@ func createGetCommand(cli *cli.CLI) *cobra.Command {
 		Use:   "get [<name>]",
 		Args:  cobra.MaximumNArgs(1),
 		Short: "List all the templates or get the contents of the given template.",
+		Example: `# List all templates
+decoy template get
+
+# Get the contents of the given template
+decoy template get "greet"`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 0 {
 				entity, err := cli.TemplateSvc.Get(args[0])

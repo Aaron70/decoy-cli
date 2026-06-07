@@ -22,7 +22,23 @@ func CreateParseCommand(cli *cli.CLI) *cobra.Command {
 	command := &cobra.Command{
 		Use:  "parse [<name>]",
 		Args: cobra.MaximumNArgs(1),
+		Short: "Parses the given template and prints the results to the stdout.",
+		Example: `# Parse a saved template
+decoy template parse "greet" --data '{ "Name": "Doe" }'
+decoy parse "greet" -v Name=Doe
 
+# Parse an inline template
+decoy template parse -t 'Hello, {{ Coalesce .Name "World" }}!' --data '{ "Name": "Doe" }'
+decoy parse -t 'Hello, {{ Coalesce .Name "World" }}!' -v Name=Doe
+
+# Parse a template from stdin
+echo 'Hello, {{ Coalesce .Name "World" }}!' | decoy template parse --data '{ "Name": "Doe" }'
+echo 'Hello, {{ Coalesce .Name "World" }}!' | decoy parse -v Name=Doe
+
+# Parse a template from a file
+decoy template parse -f /path/to/template --data '{ "Name": "Doe" }'
+decoy parse -f /path/to/template -v Name=Doe
+`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				name = args[0]

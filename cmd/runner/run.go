@@ -19,7 +19,29 @@ func CreateRunCommand(cli *cli.CLI) *cobra.Command {
 		err                             error
 	)
 	command := &cobra.Command{
-		Use:  "run <type> [<runner>] [<template>]",
+		Use:  "run <type> ([<runner>] | [<runner> <template>])",
+		Short: "Executes the runner of the given type.",
+		Long: `Executes the runner of the given type using a runner config and a template.
+The runner type can be: http, cmd.
+
+You can provide a runner config by name or inline via --config/-c.
+You can provide a template by name, inline via --template/-t, from a file via --file/-f, or from stdin.`,
+		Example: `# Run a saved runner and saved template
+decoy runner run cmd "echo" "greet"
+decoy run http "http-post" "user-template" -n 10 -g 3
+
+# Run with a saved runner and inline template
+decoy runner run http "http-poster" -t '{"name": "{{ Coalesce .Name "Doe" }}", "age": {{ RandomInt 18 99 }} }' -n 5
+decoy run http "http-poster" -t '{"name": "{{ Coalesce .Name "Doe" }}", "age": {{ RandomInt 18 99 }} }' -n 5
+
+# Run with an inline config and inline template
+decoy runner run http -c 'echo {{.Template}}' -t '{"id": {{RandomInt 1 100}}}'
+decoy run http -c '{"method":"GET","url":"http://localhost:8080/{{ NextIncrementalInt \"id\" 0 1 }}"}'
+
+# Run with data and values
+decoy runner run http "http-poster" "user-template" --data '{"env":"test"}' -v region=us
+decoy run http "http-poster" "user-template" --data '{"env":"test"}' -v region=us
+`,
 		Args: cobra.RangeArgs(1, 3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			_type = services.RunnerType(args[0])

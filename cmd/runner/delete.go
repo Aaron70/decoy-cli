@@ -10,6 +10,10 @@ import (
 func createDeleteCommand(cli *cli.CLI) *cobra.Command {
 	command := &cobra.Command{
 		Use:  "delete <name>",
+		Short: "Deletes the given runner.",
+		Example: `# Delete a runner
+decoy runner delete "echo"
+`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]

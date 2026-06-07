@@ -1,8 +1,12 @@
 package cli
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"path"
+	"sync"
+	"time"
 
 	"github.com/aaron70/decoy"
 	"github.com/aaron70/decoy-cli/internal/model"
@@ -38,6 +42,18 @@ func NewCLI(basePath string) (*CLI, error) {
 }
 
 func (c CLI) ReadStringFrom(r io.Reader) (string, error) {
+	var wg sync.WaitGroup
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	wg.Go(func() {
+		select {
+		case <- ctx.Done():
+		case <-time.Tick(time.Second * 2):
+			fmt.Println("Waiting input from stdin...")
+		}
+	})
+	
 	contents, err := io.ReadAll(r)
 	return string(contents), err
 }
