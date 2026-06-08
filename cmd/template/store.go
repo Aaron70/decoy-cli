@@ -16,9 +16,9 @@ func createStoreCommand(cli *cli.CLI) *cobra.Command {
 		err              error
 	)
 	command := &cobra.Command{
-		Use:  "store <name>",
+		Use:   "store <name>",
 		Short: "Upserts the contents of a template.",
-		Long: "Upserts the contents of a template. You can pass the template's content from stdin, a file, or through the template flag.",
+		Long:  "Upserts the contents of a template. You can pass the template's content from stdin, a file, or through the template flag.",
 		Example: `# Store a template from stdin
 echo 'Hello, {{ coalesce .Name "World" }}' | decoy template store "greet"
 
@@ -46,7 +46,7 @@ decoy template store "greet" -t 'Hello, {{ coalesce .Name "World" }}'
 
 			oldTmpl, err := cli.TemplateSvc.Get(name)
 			if err != nil {
-				if !errors.Is(err, errs.ErrNotFound){
+				if !errors.Is(err, errs.ErrNotFound) {
 					return err
 				}
 			} else {

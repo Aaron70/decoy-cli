@@ -5,11 +5,9 @@ import (
 	"github.com/aaron70/goaty/repositories"
 )
 
-
 type Template struct {
 	repo repositories.Repository[string, model.Template]
 }
-
 
 func NewTemplate(repo repositories.Repository[string, model.Template]) *Template {
 	return &Template{

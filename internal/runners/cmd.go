@@ -73,10 +73,10 @@ func splitCommand(command string) ([]string, error) {
 			return nil, err
 		}
 
-		if slices.Contains([]rune{ '"', '\'', '`'}, r) {
+		if slices.Contains([]rune{'"', '\'', '`'}, r) {
 			if strIndex < 0 {
 				strIndex = i
-				argIndex = len(arg.String())-1
+				argIndex = len(arg.String()) - 1
 			} else if runes[strIndex] == r {
 				strIndex = -1
 				argIndex = -1

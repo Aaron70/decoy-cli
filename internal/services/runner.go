@@ -131,7 +131,6 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 		return err
 	}
 
-
 	recordsPool, err := concurrency.NewPool(ctx, runner.Run,
 		concurrency.NewPoolWithMaxWorkers(workers),
 		concurrency.NewPoolWithBufferSize(n),
@@ -156,8 +155,6 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 		recordsPool.Close()
 		recordsPool.Wait()
 	})
-
-	
 
 	wg.Go(func() {
 		defer close(errs)

@@ -56,7 +56,7 @@ func NewHttpRunner() Runner {
 			Client: http.DefaultTransport,
 		},
 		ConfigDeserializer: func(config string) (*HttpRunnerConfig, error) {
-			var c HttpRunnerConfig 
+			var c HttpRunnerConfig
 			err := json.Unmarshal([]byte(config), &c)
 			return &c, err
 		},
@@ -69,7 +69,7 @@ func (r HttpRunner) Run(ctx context.Context, config *HttpRunnerConfig) (*HttpRun
 		return nil, err
 	}
 
-	for  key, val := range config.Headers {
+	for key, val := range config.Headers {
 		request.Header.Add(key, val)
 	}
 

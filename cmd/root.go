@@ -26,14 +26,14 @@ func createRootCommand(cli *cli.CLI) *cobra.Command {
 }
 
 func configDir() string {
-    if dir := os.Getenv("XDG_CONFIG_HOME"); dir != "" {
-        return filepath.Join(dir, "decoy")
-    }
-    home, err := os.UserHomeDir()
-    if err != nil {
-        return filepath.Join("/tmp", ".config", "decoy")
-    }
-    return filepath.Join(home, ".config", "decoy")
+	if dir := os.Getenv("XDG_CONFIG_HOME"); dir != "" {
+		return filepath.Join(dir, "decoy")
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return filepath.Join("/tmp", ".config", "decoy")
+	}
+	return filepath.Join(home, ".config", "decoy")
 }
 
 func Execute() error {

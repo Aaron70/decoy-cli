@@ -12,14 +12,14 @@ import (
 
 func CreateRunCommand(cli *cli.CLI) *cobra.Command {
 	var (
-		_type services.RunnerType
+		_type                    services.RunnerType
 		tmpl, file, data, config string
-		stringValues                    map[string]string
-		n, g                               int
-		err                             error
+		stringValues             map[string]string
+		n, g                     int
+		err                      error
 	)
 	command := &cobra.Command{
-		Use:  "run <type> [<runner>] [<template>]",
+		Use:   "run <type> [<runner>] [<template>]",
 		Short: "Executes the runner of the given type.",
 		Long: `Executes the runner of the given type using a runner config and a template.
 The runner type can be: http, cmd.
