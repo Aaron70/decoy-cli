@@ -59,8 +59,9 @@ func splitCommand(command string) ([]string, error) {
 	arg := strings.Builder{}
 	strIndex := -1
 	argIndex := -1
-	for i := 0; i < len(command); i++ {
-		r := rune(command[i])
+	runes := []rune(command)
+	for i := 0; i < len(runes); i++ {
+		r := runes[i]
 		if r == ' ' && strIndex < 0 {
 			args = append(args, arg.String())
 			arg.Reset()
@@ -76,18 +77,18 @@ func splitCommand(command string) ([]string, error) {
 			if strIndex < 0 {
 				strIndex = i
 				argIndex = len(arg.String())-1
-			} else if rune(command[strIndex]) == r {
+			} else if runes[strIndex] == r {
 				strIndex = -1
 				argIndex = -1
 			}
 		}
 
-		if i == len(command)-1 && strIndex >= 0 {
+		if i == len(runes)-1 && strIndex >= 0 {
 			i = strIndex
 			k := arg.String()[0:argIndex]
 			arg.Reset()
 			arg.WriteString(k)
-			arg.WriteByte(command[strIndex])
+			arg.WriteRune(runes[strIndex])
 			strIndex = -1
 		}
 	}
