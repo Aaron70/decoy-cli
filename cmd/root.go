@@ -14,7 +14,7 @@ func createRootCommand(cli *cli.CLI) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "decoy",
 		Short: "A CLI tool to generate mock data",
-		Long:  "Decoy is a command-line utility for creating and ingesting mock data trough templates and runners. Templates support dynamic data injection using the Go Template Engine, and runners let you ingest the generated data into your application.",
+		Long:  "Decoy is a command-line utility for creating and ingesting mock data through templates and runners. Templates support dynamic data injection using the Go Template Engine, and runners let you ingest the generated data into your application.",
 	}
 
 	command.AddCommand(template.CreateTemplateCommand(cli))

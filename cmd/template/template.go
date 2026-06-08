@@ -8,9 +8,9 @@ import (
 func CreateTemplateCommand(cli *cli.CLI) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "template",
-		Short: "Groups the templates commands",
-		Long: `Manages the templates commands, you can store, get, delete and parse templates.
-The Template engine uses the Go's text/template library, so you can leverage the go tmpl syntax to structure and generate your data.`,
+		Short: "Groups the template commands",
+		Long: `Manages the template commands, you can store, get, delete, and parse templates.
+The Template engine uses Go's text/template library, so you can leverage Go's template syntax to structure and generate your data.`,
 	}
 
 	command.AddCommand(createStoreCommand(cli))

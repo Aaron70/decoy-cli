@@ -8,7 +8,7 @@ import (
 func CreateRunnerCommand(cli *cli.CLI) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "runner",
-		Short: "Groups the runners commands",
+		Short: "Groups the runner commands",
 	}
 
 	command.AddCommand(createStoreCommand(cli))

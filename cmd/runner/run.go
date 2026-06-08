@@ -19,7 +19,7 @@ func CreateRunCommand(cli *cli.CLI) *cobra.Command {
 		err                             error
 	)
 	command := &cobra.Command{
-		Use:  "run <type> ([<runner>] | [<runner> <template>])",
+		Use:  "run <type> [<runner>] [<template>]",
 		Short: "Executes the runner of the given type.",
 		Long: `Executes the runner of the given type using a runner config and a template.
 The runner type can be: http, cmd.
@@ -95,7 +95,7 @@ decoy run http "http-poster" "user-template" --data '{"env":"test"}' -v region=u
 	command.Flags().StringVarP(&data, "data", "d", "{}", "The JSON data to be used within the template")
 	command.Flags().StringToStringVarP(&stringValues, "value", "v", map[string]string{}, "A set of pairs (key=value) to inject into the data")
 
-	command.Flags().IntVarP(&n, "times", "n", 1, "The number of times that the runner will be executed")
+	command.Flags().IntVarP(&n, "times", "n", 1, "The number of times the runner will be executed")
 	command.Flags().IntVarP(&g, "goroutines", "g", 1, "The number of concurrent goroutines executing the runner")
 
 	command.Flags().StringVarP(&config, "config", "c", "", "The config's content of the runner to execute")

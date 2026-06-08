@@ -7,10 +7,10 @@ A CLI tool for generating and ingesting mock data using Go templates and configu
 ## Features
 
 * Template Engine - Generate dynamic data using Go's `text/template`. See [Template Engine](#template-engine) section.
-    * Use built-in functions like: random generation function, probability, counters and more.
-* Runners Engine - Ingest generated data using implemented Runners. See [Runner Engine](#runner-engine) section.
-    * Concurrent Execution - You can set multiple goroutines to execute `n` times the runner.
-* Persistance - You can save Templates and Runners to reuse later.
+    * Use built-in functions like random generation, probability, counters, and more.
+* Runner Engine - Ingest generated data using implemented Runners. See [Runner Engine](#runner-engine) section.
+    * Concurrent Execution - You can execute the runner `n` times using multiple goroutines.
+* Persistence - You can save Templates and Runners to reuse later.
 
 ---
 
@@ -62,9 +62,9 @@ decoy runner run cmd echo greet -v Name=Doe
 
 ```bash
 decoy template --help
-decory template parse --help
+decoy template parse --help
 decoy runner --help
-decory runner run --help
+decoy runner run --help
 ```
 
 ---
@@ -112,7 +112,7 @@ Templates use Go's [`text/template`](https://pkg.go.dev/text/template) syntax wi
 | `readFileBytes path` | Read file as bytes | `{{readFileBytes "img.png"}}` |
 | `readFileBase64 path` | Read file as base64 | `{{readFileBase64 "img.png"}}` |
 
-See [decoy's FUNCTIONS.md](https://github.com/Aaron70/Decoy/blob/master/FUNCTIONS.md) for full details.
+See [decoy's FUNCTIONS.md](https://github.com/aaron70/decoy/blob/main/FUNCTIONS.md) for full details.
 
 ---
 
@@ -180,7 +180,7 @@ echo "{{.template}}"
 
 ## Advanced template example
 
-This is a demonstration of how you can use the different provided functions to build a more fairly complex example.
+This is a demonstration of how you can use the provided functions to build a fairly complex example.
 
 `~/templates/user.tmpl`
 ```text
@@ -189,7 +189,7 @@ This is a demonstration of how you can use the different provided functions to b
 {{- $isGranny := and $isAdult (probability 0.20) -}}
 {{- $country := randomChoiceList $countries | coalesce .country -}}
 {{- $siblingsCount := 0 -}}
-{{- if probability 0.675 -}} {{/* Has sibligns or not */}}
+{{- if probability 0.675 -}} {{/* Has siblings or not */}}
   {{- if probability 0.35 -}} {{/* Has more than 5 */}}
     {{- $siblingsCount = randomInt 5 16 -}}
   {{- else -}}
@@ -199,7 +199,7 @@ This is a demonstration of how you can use the different provided functions to b
 {{- $isMarried := and $isAdult (probability 0.43) -}}
 
 {
-  "id": {{ nextIncrementalInt "id" 0 1 }}
+  "id": {{ nextIncrementalInt "id" 0 1 }},
   "name": "{{ randomFullName 0.85 }}",
   "age": {{ if not $isAdult -}}
     {{- randomInt 0 18 -}}
@@ -235,7 +235,7 @@ The resulting user would be similar to:
 
 ```json
 {
-  "id": 0
+  "id": 0,
   "name": "Margaret Pham Ross",
   "age": 61,
   "adult": true,

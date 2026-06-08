@@ -18,7 +18,7 @@ func createStoreCommand(cli *cli.CLI) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "store <name>",
 		Short: "Upserts a runner.",
-		Long:  "Upserts a runner. You can pass the config JSON from stdin, a file or trough the config flag.",
+		Long:  "Upserts a runner. You can pass the config JSON from stdin, a file, or through the config flag.",
 		Example: `# Store a runner config from stdin
 echo 'echo "{{ .template }}"' | decoy runner store "echo"
 

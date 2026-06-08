@@ -22,7 +22,7 @@ func CreateParseCommand(cli *cli.CLI) *cobra.Command {
 	command := &cobra.Command{
 		Use:  "parse [<name>]",
 		Args: cobra.MaximumNArgs(1),
-		Short: "Parses the given template and prints the results to the stdout.",
+		Short: "Parses the given template and prints the results to stdout.",
 		Example: `# Parse a saved template
 decoy template parse "greet" --data '{ "Name": "Doe" }'
 decoy parse "greet" -v Name=Doe
