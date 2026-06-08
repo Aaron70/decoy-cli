@@ -31,12 +31,12 @@ decoy runner run cmd "echo" "greet"
 decoy run http "http-post" "user-template" -n 10 -g 3
 
 # Run with a saved runner and inline template
-decoy runner run http "http-poster" -t '{"name": "{{ Coalesce .Name "Doe" }}", "age": {{ RandomInt 18 99 }} }' -n 5
-decoy run http "http-poster" -t '{"name": "{{ Coalesce .Name "Doe" }}", "age": {{ RandomInt 18 99 }} }' -n 5
+decoy runner run http "http-poster" -t '{"name": "{{ coalesce .Name "Doe" }}", "age": {{ randomInt 18 99 }} }' -n 5
+decoy run http "http-poster" -t '{"name": "{{ coalesce .Name "Doe" }}", "age": {{ randomInt 18 99 }} }' -n 5
 
 # Run with an inline config and inline template
-decoy runner run http -c 'echo {{.Template}}' -t '{"id": {{RandomInt 1 100}}}'
-decoy run http -c '{"method":"GET","url":"http://localhost:8080/{{ NextIncrementalInt \"id\" 0 1 }}"}'
+decoy runner run http -c 'echo {{.Template}}' -t '{"id": {{randomInt 1 100}}}'
+decoy run http -c '{"method":"GET","url":"http://localhost:8080/{{ nextIncrementalInt \"id\" 0 1 }}"}'
 
 # Run with data and values
 decoy runner run http "http-poster" "user-template" --data '{"env":"test"}' -v region=us

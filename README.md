@@ -8,7 +8,7 @@ A CLI tool for generating and ingesting mock data using Go templates and configu
 
 * Template Engine - Generate dynamic data using Go's `text/template`. See [Template Engine](#template-engine) section.
     * Use built-in functions like: random generation function, probability, counters and more.
-* Runners Engine - Ingest generated data using implemented Runners. See [Runners Engine](#runners-engine) section.
+* Runners Engine - Ingest generated data using implemented Runners. See [Runner Engine](#runner-engine) section.
     * Concurrent Execution - You can set multiple goroutines to execute `n` times the runner.
 * Persistance - You can save Templates and Runners to reuse later.
 
@@ -37,7 +37,7 @@ go build -o decoy ./decoy/main.go
 ### Store a template
 
 ```bash
-decoy template store greet -t 'Hello, {{ Coalesce .Name "World" }}!'
+decoy template store greet -t 'Hello, {{ coalesce .Name "World" }}!'
 ```
 
 ### Parse the template
@@ -75,70 +75,42 @@ Templates use Go's [`text/template`](https://pkg.go.dev/text/template) syntax wi
 
 ### Built-in template functions
 
+> **Sprig functions:** All [Sprig v3](http://masterminds.github.io/sprig/) template functions (date formatting, string manipulation, math, crypto, type conversion, etc.) are also available alongside the functions below. For example, Sprig provides `list`, `coalesce`, `env`, `fromJson`, and many other utilities.
+
 #### Random generation
 
 | Function | Description | Example |
 |---|---|---|
-| `RandomInt min max` | Random int in `[min, max)` | `{{RandomInt 1 100}}` |
-| `RandomFloat min max` | Random float64 in `[min, max)` | `{{RandomFloat 0.0 1.0}}` |
-| `RandomBoolean` | Random true/false | `{{RandomBoolean}}` |
-| `RandomChoice args...` | Random item from args | `{{RandomChoice "a" "b" "c"}}` |
-| `RandomText maxWords` | Markov chain random text | `{{RandomText 50}}` |
+| `randomInt min max` | Random int in `[min, max)` | `{{randomInt 1 100}}` |
+| `randomFloat min max` | Random float64 in `[min, max)` | `{{randomFloat 0.0 1.0}}` |
+| `randomBoolean` | Random true/false | `{{randomBoolean}}` |
+| `randomChoice args...` | Random item from args | `{{randomChoice "a" "b" "c"}}` |
+| `randomChoiceList choices` | Random item from a slice | `{{randomChoiceList $colors}}` |
+| `randomText maxWords` | Markov chain random text | `{{randomText 50}}` |
+| `randomName` | Random first name | `{{randomName}}` |
+| `randomLastName` | Random last name | `{{randomLastName}}` |
+| `randomFullName prob` | Random full name with middle name probability | `{{randomFullName 0.5}}` |
 
 #### Probability
 
 | Function | Description | Example |
 |---|---|---|
-| `Probability p` | Returns true with probability `p` | `{{Probability 0.75}}` |
+| `probability p` | Returns true with probability `p` | `{{probability 0.75}}` |
 
 #### Incremental counters
 
 | Function | Description | Example |
 |---|---|---|
-| `NextIncrementalInt id start step` | Next value of named counter | `{{NextIncrementalInt "c" 1 1}}` |
-| `CurrentIncrementalInt id default` | Current value (non-advancing) | `{{CurrentIncrementalInt "c" 0}}` |
+| `nextIncrementalInt id start step` | Next value of named counter | `{{nextIncrementalInt "c" 1 1}}` |
+| `currentIncrementalInt id default` | Current value (non-advancing) | `{{currentIncrementalInt "c" 0}}` |
 
-#### Environment & I/O
-
-| Function | Description | Example |
-|---|---|---|
-| `EnvVariable key` | Read environment variable | `{{EnvVariable "HOME"}}` |
-| `ReadFileString path` | Read file as string | `{{ReadFileString "data.txt"}}` |
-| `ReadFileBytes path` | Read file as bytes | `{{ReadFileBytes "img.png"}}` |
-| `ReadFileBase64 path` | Read file as base64 | `{{ReadFileBase64 "img.png"}}` |
-
-#### Serialization
+#### I/O
 
 | Function | Description | Example |
 |---|---|---|
-| `JsonUnmarshalString data` | Parse JSON string to map | `{{(JsonUnmarshalString "{\"a\":1}").a}}` |
-| `JsonUnmarshalBytes data` | Parse JSON bytes to map | `{{$d := ReadFileBytes "cfg.json"}}{{JsonUnmarshalBytes $d}}` |
-
-#### List builders
-
-| Function | Description | Example |
-|---|---|---|
-| `List args...` | Mixed-type slice | `{{range List "a" 1 true}}{{.}} {{end}}` |
-| `ListString args...` | String slice | `{{range ListString "x" "y"}}{{.}} {{end}}` |
-| `ListInt args...` | Int slice | `{{range ListInt 10 20}}{{.}} {{end}}` |
-| `ListFloat64 args...` | Float64 slice | `{{range ListFloat64 1.5 2.5}}{{.}} {{end}}` |
-| `ListBool args...` | Bool slice | `{{range ListBool true false}}{{.}} {{end}}` |
-
-#### Coalesce
-
-| Function | Description | Example |
-|---|---|---|
-| `Coalesce args...` | First non-zero value | `{{Coalesce .Title "Default"}}` |
-| `CoalesceString args...` | String variant | `{{CoalesceString .Name "unknown"}}` |
-| `CoalesceInt args...` | Int variant | `{{CoalesceInt .Count 0}}` |
-| `CoalesceFloat64 args...` | Float64 variant | `{{CoalesceFloat64 .Price 9.99}}` |
-
-#### Error
-
-| Function | Description | Example |
-|---|---|---|
-| `NewError msg args...` | Halts template with formatted error | `{{NewError "bad value: %v" .Val}}` |
-
+| `readFileString path` | Read file as string | `{{readFileString "data.txt"}}` |
+| `readFileBytes path` | Read file as bytes | `{{readFileBytes "img.png"}}` |
+| `readFileBase64 path` | Read file as base64 | `{{readFileBase64 "img.png"}}` |
 
 See [decoy's FUNCTIONS.md](https://github.com/aaron70/decoy/blob/main/FUNCTIONS.md) for full details.
 
@@ -204,3 +176,76 @@ echo "{{.Template}}"
 ```
 
 ---
+
+## Advanced template example
+
+This is a demonstration of how you can use the different provided functions to build a more fairly complex example.
+
+`~/templates/user.tmpl`
+```text
+{{- $countries := list "Costa Rica" "United States" "Panama" -}}
+{{- $isAdult := probability 0.70 -}}
+{{- $isGranny := and $isAdult (probability 0.20) -}}
+{{- $country := randomChoiceList $countries | coalesce .country -}}
+{{- $siblingsCount := 0 -}}
+{{- if probability 0.675 -}} {{/* Has sibligns or not */}}
+  {{- if probability 0.35 -}} {{/* Has more than 5 */}}
+    {{- $siblingsCount = randomInt 5 16 -}}
+  {{- else -}}
+    {{- $siblingsCount = randomInt 1 5 -}}
+  {{- end -}}
+{{- end -}}
+{{- $isMarried := and $isAdult (probability 0.43) -}}
+
+{
+  "id": {{ nextIncrementalInt "id" 0 1 }}
+  "name": "{{ randomFullName 0.85 }}",
+  "age": {{ if not $isAdult -}}
+    {{- randomInt 0 18 -}}
+  {{- else -}}
+    {{- if $isGranny -}}
+      {{- randomInt 60 120 -}}
+    {{- else -}}
+      {{- randomInt 18 60 -}}
+    {{- end -}}
+  {{- end -}},
+  "adult": {{ $isAdult }},
+  "favoriteQuote": "{{ randomText 15 }}...",
+  "country": "{{ $country }}",
+  "sex": "{{ randomChoice "Female" "Male" }}",
+  "married": {{ $isMarried }},
+  {{- if $isMarried }}
+  "spouse": "{{ randomFullName 0.85 }}",
+  {{- end }}
+  "siblings": [
+  {{- range $i := $siblingsCount }}
+    "{{ randomFullName 0.85 }}"
+    {{- if not (eq $i (sub $siblingsCount 1)) -}},{{ end -}}
+  {{ end }}
+  ]
+}
+```
+
+```bash
+decoy run cmd -c "echo {{ .Template }}" -f ~/templates/user.tmpl -v "country=Costa Rica" -n 1
+```
+
+The resulting user would be similar to:
+
+```json
+{
+  "id": 0
+  "name": "Margaret Pham Ross",
+  "age": 61,
+  "adult": true,
+  "favoriteQuote": "me simply a motive in art. You might see nothing in him. I see everything...",
+  "country": "Costa Rica",
+  "sex": "Female",
+  "married": true,
+  "spouse": "Priya Reyes Mensah",
+  "siblings": [
+    "Olga Jung Bell"
+  ]
+}
+```
+

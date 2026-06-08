@@ -20,13 +20,13 @@ func createStoreCommand(cli *cli.CLI) *cobra.Command {
 		Short: "Upserts the contents of a template.",
 		Long: "Upserts the contents of a template. You can pass the templates content from stdin, a file or trough the template flag.",
 		Example: `# Store a template from stdin
-echo 'Hello, {{ Coalesce .Name "World" }}' | decoy template store "greet"
+echo 'Hello, {{ coalesce .Name "World" }}' | decoy template store "greet"
 
 # Store a template from a file
 decoy template store "greet" -f /path/to/template
 
 # Store an inline template
-decoy template store "greet" -t 'Hello, {{ Coalesce .Name "World" }}'
+decoy template store "greet" -t 'Hello, {{ coalesce .Name "World" }}'
 `,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
