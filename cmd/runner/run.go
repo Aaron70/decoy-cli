@@ -35,7 +35,7 @@ decoy runner run http "http-poster" -t '{"name": "{{ coalesce .Name "Doe" }}", "
 decoy run http "http-poster" -t '{"name": "{{ coalesce .Name "Doe" }}", "age": {{ randomInt 18 99 }} }' -n 5
 
 # Run with an inline config and inline template
-decoy runner run http -c 'echo {{.Template}}' -t '{"id": {{randomInt 1 100}}}'
+decoy runner run http -c 'echo {{.template}}' -t '{"id": {{randomInt 1 100}}}'
 decoy run http -c '{"method":"GET","url":"http://localhost:8080/{{ nextIncrementalInt \"id\" 0 1 }}"}'
 
 # Run with data and values

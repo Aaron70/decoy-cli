@@ -49,7 +49,7 @@ decoy template parse greet --data '{ "Name": "Doe" }'
 ### Store a runner
 
 ```bash
-decoy runner store echo -c 'echo User said: "{{ .Template }}"' 
+decoy runner store echo -c 'echo User said: "{{ .template }}"' 
 ```
 
 ### Execute the runner
@@ -112,7 +112,7 @@ Templates use Go's [`text/template`](https://pkg.go.dev/text/template) syntax wi
 | `readFileBytes path` | Read file as bytes | `{{readFileBytes "img.png"}}` |
 | `readFileBase64 path` | Read file as base64 | `{{readFileBase64 "img.png"}}` |
 
-See [decoy's FUNCTIONS.md](https://github.com/aaron70/decoy/blob/main/FUNCTIONS.md) for full details.
+See [decoy's FUNCTIONS.md](https://github.com/Aaron70/Decoy/blob/master/FUNCTIONS.md) for full details.
 
 ---
 
@@ -126,9 +126,10 @@ Additionally, Runners provide the following data available to the Template Engin
 
 | Key | Description | Example |
 | --- | ----------- | ------- |
-| Times | The number of times that the runner will be executed | `{{ .Times }}` |
-| Goroutines | The number of concurrent goroutines that will execute the runner | `{{ .Goroutines }}` |
-| Template | The contents of the already parsed template | `{{ .Template }}` |
+| times | The number of times that the runner will be executed | `{{ .times }}` |
+| goroutines | The number of concurrent goroutines that will execute the runner | `{{ .goroutines }}` |
+| template | The contents of the already parsed template | `{{ .template }}` |
+| data | The JSON data passed to the template | `{{ .data }}` |
 
 
 ### Runner types
@@ -158,7 +159,7 @@ Configuration example:
   "url": "http://api.example.com/items",
   "queryParameters": {"source": "decoy"},
   "headers": {"Authorization": "Bearer token123"},
-  "body": {{.Template}}
+  "body": {{.template}}
 }
 ```
 
@@ -172,7 +173,7 @@ The configuration for the `cmd` runner is the command itself to run.
 
 Configuration example:
 ```text
-echo "{{.Template}}"
+echo "{{.template}}"
 ```
 
 ---
@@ -227,7 +228,7 @@ This is a demonstration of how you can use the different provided functions to b
 ```
 
 ```bash
-decoy run cmd -c "echo {{ .Template }}" -f ~/templates/user.tmpl -v "country=Costa Rica" -n 1
+decoy run cmd -c "echo {{ .template }}" -f ~/templates/user.tmpl -v "country=Costa Rica" -n 1
 ```
 
 The resulting user would be similar to:

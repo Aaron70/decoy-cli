@@ -97,7 +97,7 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 	}
 
 	mapsPool := sync.Pool{
-		New: func() any { return map[string]any{"Goroutines": workers, "Times": n} },
+		New: func() any { return map[string]any{"goroutines": workers, "times": n, "data": data} },
 	}
 
 	templatePool, err := concurrency.NewPool(ctx, func(ctx context.Context, task string) (string, error) {
@@ -112,10 +112,10 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 
 		runnerData := mapsPool.Get().(map[string]any)
 		defer func() {
-			runnerData["Template"] = nil
+			runnerData["template"] = nil
 			mapsPool.Put(runnerData)
 		}()
-		runnerData["Template"] = buffer.String()
+		runnerData["template"] = buffer.String()
 		buffer.Reset()
 
 		err = runnerCompiled.Execute(buffer, runnerData)
