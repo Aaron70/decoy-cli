@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aaron70/decoy-cli/cli"
+	"github.com/aaron70/decoy-cli/internal/services"
+	"github.com/aaron70/decoy-cli/internal/utils"
 	errs "github.com/aaron70/goaty/errors"
 	"github.com/spf13/cobra"
 )
 
-func createStoreCommand(cli *cli.CLI) *cobra.Command {
+func createStoreCommand(decoy *services.Decoy) *cobra.Command {
 	var (
 		name, config, file string
 		err                error
@@ -39,20 +40,20 @@ decoy runner store "echo" -c 'echo "{{ .template }}"'
 				}
 				config = string(bytes)
 			} else if !cmd.Flags().Changed("config") {
-				config, err = cli.ReadStringFrom(cmd.InOrStdin())
+				config, err = utils.ReadStringFrom(cmd.InOrStdin())
 				if err != nil {
 					return fmt.Errorf("Couldn't read the config from stdin: %w", err)
 				}
 			}
 
-			oldRunner, err := cli.RunnerSvc.Get(name)
+			oldRunner, err := decoy.RunnerSvc.Get(name)
 			if err != nil {
 				if !errors.Is(err, errs.ErrNotFound) {
 					return err
 				}
 			} else {
 				fmt.Printf("Updating runner %q:\n%s\n", name, string(oldRunner.Config))
-				entity, err := cli.RunnerSvc.Update(name, config)
+				entity, err := decoy.RunnerSvc.Update(name, config)
 				if err != nil {
 					return err
 				}
@@ -61,7 +62,7 @@ decoy runner store "echo" -c 'echo "{{ .template }}"'
 				return nil
 			}
 
-			entity, err := cli.RunnerSvc.Save(name, config)
+			entity, err := decoy.RunnerSvc.Save(name, config)
 			fmt.Printf("Saving new runner %q:\n%s\n", name, string(entity.Config))
 
 			return err

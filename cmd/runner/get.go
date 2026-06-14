@@ -3,11 +3,11 @@ package runner
 import (
 	"fmt"
 
-	"github.com/aaron70/decoy-cli/cli"
+	"github.com/aaron70/decoy-cli/internal/services"
 	"github.com/spf13/cobra"
 )
 
-func createGetCommand(cli *cli.CLI) *cobra.Command {
+func createGetCommand(decoy *services.Decoy) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "get [<name>]",
 		Args:  cobra.MaximumNArgs(1),
@@ -20,13 +20,13 @@ decoy runner get "echo"
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 0 {
-				entity, err := cli.RunnerSvc.Get(args[0])
+				entity, err := decoy.RunnerSvc.Get(args[0])
 				if err != nil {
 					return err
 				}
 				fmt.Fprintf(cmd.OutOrStdout(), "%s\n", string(entity.Config))
 			} else {
-				entities, err := cli.RunnerSvc.GetAll()
+				entities, err := decoy.RunnerSvc.GetAll()
 				if err != nil {
 					return err
 				}

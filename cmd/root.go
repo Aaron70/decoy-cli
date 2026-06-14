@@ -4,23 +4,27 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/aaron70/decoy-cli/cli"
 	"github.com/aaron70/decoy-cli/cmd/runner"
+	"github.com/aaron70/decoy-cli/cmd/server"
 	"github.com/aaron70/decoy-cli/cmd/template"
+	"github.com/aaron70/decoy-cli/internal/services"
 	"github.com/spf13/cobra"
 )
 
-func createRootCommand(cli *cli.CLI) *cobra.Command {
+func createRootCommand(decoy *services.Decoy) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "decoy",
 		Short: "A CLI tool to generate mock data",
 		Long:  "Decoy is a command-line utility for creating and ingesting mock data through templates and runners. Templates support dynamic data injection using the Go Template Engine, and runners let you ingest the generated data into your application.",
 	}
 
-	command.AddCommand(template.CreateTemplateCommand(cli))
-	command.AddCommand(template.CreateParseCommand(cli))
-	command.AddCommand(runner.CreateRunnerCommand(cli))
-	command.AddCommand(runner.CreateRunCommand(cli))
+	command.AddCommand(
+		template.CreateTemplateCommand(decoy),
+		template.CreateParseCommand(decoy),
+		runner.CreateRunnerCommand(decoy),
+		runner.CreateRunCommand(decoy),
+		server.CreateServerCommand(decoy),
+	)
 
 	return command
 }
@@ -37,7 +41,7 @@ func configDir() string {
 }
 
 func Execute() error {
-	cli, err := cli.NewCLI(configDir())
+	cli, err := services.NewDecoyFS(configDir())
 	if err != nil {
 		return err
 	}

@@ -1,11 +1,11 @@
 package template
 
 import (
-	"github.com/aaron70/decoy-cli/cli"
+	"github.com/aaron70/decoy-cli/internal/services"
 	"github.com/spf13/cobra"
 )
 
-func CreateTemplateCommand(cli *cli.CLI) *cobra.Command {
+func CreateTemplateCommand(decoy *services.Decoy) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "template",
 		Short: "Groups the template commands",
@@ -13,10 +13,10 @@ func CreateTemplateCommand(cli *cli.CLI) *cobra.Command {
 The Template engine uses Go's text/template library, so you can leverage Go's template syntax to structure and generate your data.`,
 	}
 
-	command.AddCommand(createStoreCommand(cli))
-	command.AddCommand(createGetCommand(cli))
-	command.AddCommand(createDeleteCommand(cli))
-	command.AddCommand(CreateParseCommand(cli))
+	command.AddCommand(createStoreCommand(decoy))
+	command.AddCommand(createGetCommand(decoy))
+	command.AddCommand(createDeleteCommand(decoy))
+	command.AddCommand(CreateParseCommand(decoy))
 
 	return command
 }

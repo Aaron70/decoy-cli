@@ -8,11 +8,12 @@ import (
 	"strings"
 
 	"github.com/aaron70/decoy"
-	"github.com/aaron70/decoy-cli/cli"
+	"github.com/aaron70/decoy-cli/internal/services"
+	"github.com/aaron70/decoy-cli/internal/utils"
 	"github.com/spf13/cobra"
 )
 
-func CreateParseCommand(cli *cli.CLI) *cobra.Command {
+func CreateParseCommand(cli *services.Decoy) *cobra.Command {
 	var (
 		name, tmpl, file, data string
 		err                    error
@@ -60,7 +61,7 @@ decoy parse -f /path/to/template -v Name=Doe
 				}
 				tmpl = string(bytes)
 			} else if !cmd.Flags().Changed("template") {
-				tmpl, err = cli.ReadStringFrom(cmd.InOrStdin())
+				tmpl, err = utils.ReadStringFrom(cmd.InOrStdin())
 				if err != nil {
 					return fmt.Errorf("Couldn't read the template from stdin: %w", err)
 				}

@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aaron70/decoy-cli/cli"
+	"github.com/aaron70/decoy-cli/internal/services"
+	"github.com/aaron70/decoy-cli/internal/utils"
 	"github.com/aaron70/goaty/errors"
 	"github.com/spf13/cobra"
 )
 
-func createDeleteCommand(cli *cli.CLI) *cobra.Command {
+func createDeleteCommand(decoy *services.Decoy) *cobra.Command {
 	var (
 		name      string
 		deleteAll bool
@@ -32,7 +33,7 @@ decoy template delete --all --yes`,
 			if len(args) <= 0 && deleteAll {
 
 				if !confirmed {
-					res, err := cli.AskForInput(cmd.InOrStdin(), cmd.OutOrStdout(), "Are you sure you want to delete all templates? (y/n): ")
+					res, err := utils.AskForInput(cmd.InOrStdin(), cmd.OutOrStdout(), "Are you sure you want to delete all templates? (y/n): ")
 					if err != nil {
 						return err
 					}
@@ -42,13 +43,13 @@ decoy template delete --all --yes`,
 					}
 				}
 
-				templates, err := cli.TemplateSvc.GetAll()
+				templates, err := decoy.TemplateSvc.GetAll()
 				if err != nil {
 					return err
 				}
 
 				for _, tmpl := range templates {
-					_, err := cli.TemplateSvc.Delete(tmpl.Name)
+					_, err := decoy.TemplateSvc.Delete(tmpl.Name)
 					if err != nil {
 						return err
 					}
@@ -62,7 +63,7 @@ decoy template delete --all --yes`,
 				name = args[0]
 			}
 
-			entity, err := cli.TemplateSvc.Delete(name)
+			entity, err := decoy.TemplateSvc.Delete(name)
 			if err != nil {
 				return err
 			}

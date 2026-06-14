@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aaron70/decoy-cli/cli"
+	"github.com/aaron70/decoy-cli/internal/services"
+	"github.com/aaron70/decoy-cli/internal/utils"
 	errs "github.com/aaron70/goaty/errors"
 	"github.com/spf13/cobra"
 )
 
-func createStoreCommand(cli *cli.CLI) *cobra.Command {
+func createStoreCommand(decoy *services.Decoy) *cobra.Command {
 	var (
 		name, tmpl, file string
 		err              error
@@ -38,20 +39,20 @@ decoy template store "greet" -t 'Hello, {{ coalesce .Name "World" }}'
 				}
 				tmpl = string(bytes)
 			} else if !cmd.Flags().Changed("template") {
-				tmpl, err = cli.ReadStringFrom(cmd.InOrStdin())
+				tmpl, err = utils.ReadStringFrom(cmd.InOrStdin())
 				if err != nil {
 					return fmt.Errorf("Couldn't read the template from stdin: %w", err)
 				}
 			}
 
-			oldTmpl, err := cli.TemplateSvc.Get(name)
+			oldTmpl, err := decoy.TemplateSvc.Get(name)
 			if err != nil {
 				if !errors.Is(err, errs.ErrNotFound) {
 					return err
 				}
 			} else {
 				fmt.Printf("Updating template %q:\n%s\n", name, oldTmpl)
-				entity, err := cli.TemplateSvc.Update(name, tmpl)
+				entity, err := decoy.TemplateSvc.Update(name, tmpl)
 				if err != nil {
 					return err
 				}
@@ -60,7 +61,7 @@ decoy template store "greet" -t 'Hello, {{ coalesce .Name "World" }}'
 				return nil
 			}
 
-			entity, err := cli.TemplateSvc.Save(name, tmpl)
+			entity, err := decoy.TemplateSvc.Save(name, tmpl)
 			fmt.Printf("Saving new template %q:\n%s\n", name, entity.Tmpl)
 
 			return err

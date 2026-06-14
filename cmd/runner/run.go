@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aaron70/decoy-cli/cli"
 	"github.com/aaron70/decoy-cli/internal/services"
+	"github.com/aaron70/decoy-cli/internal/utils"
 	"github.com/spf13/cobra"
 )
 
-func CreateRunCommand(cli *cli.CLI) *cobra.Command {
+func CreateRunCommand(decoy *services.Decoy) *cobra.Command {
 	var (
 		_type                    services.RunnerType
 		tmpl, file, data, config string
@@ -47,21 +47,21 @@ decoy run http "http-poster" "user-template" --data '{"env":"test"}' -v region=u
 			_type = services.RunnerType(args[0])
 
 			if len(args) >= 2 {
-				entity, err := cli.RunnerSvc.Get(args[1])
+				entity, err := decoy.RunnerSvc.Get(args[1])
 				if err != nil {
 					return err
 				}
 				config = entity.Config
 			} else if !cmd.Flags().Changed("config") {
 				fmt.Printf("reading from stdin\n")
-				tmpl, err = cli.ReadStringFrom(cmd.InOrStdin())
+				tmpl, err = utils.ReadStringFrom(cmd.InOrStdin())
 				if err != nil {
 					return fmt.Errorf("Couldn't read the runner's config from stdin: %w", err)
 				}
 			}
 
 			if len(args) == 3 {
-				entity, err := cli.TemplateSvc.Get(args[2])
+				entity, err := decoy.TemplateSvc.Get(args[2])
 				if err != nil {
 					return err
 				}
@@ -84,7 +84,7 @@ decoy run http "http-poster" "user-template" --data '{"env":"test"}' -v region=u
 				jsonData[key] = value
 			}
 
-			return cli.RunnerSvc.Run(cmd.OutOrStdout(), _type, config, tmpl, jsonData, n, g)
+			return decoy.RunnerSvc.Run(cmd.OutOrStdout(), _type, config, tmpl, jsonData, n, g)
 		},
 	}
 

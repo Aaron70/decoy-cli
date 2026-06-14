@@ -100,7 +100,7 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 		New: func() any { return map[string]any{"goroutines": workers, "times": n, "data": data} },
 	}
 
-	templatePool, err := concurrency.NewPool(ctx, func(ctx context.Context, task string) (string, error) {
+	templatePool, err := concurrency.NewPool(ctx, concurrency.ToWorkerFunc(func(ctx context.Context, task string) (string, error) {
 		buffer := bufferPool.Get().(*bytes.Buffer)
 		buffer.Reset()
 		defer bufferPool.Put(buffer)
@@ -123,7 +123,7 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 			return "", err
 		}
 		return buffer.String(), nil
-	},
+	}),
 		concurrency.NewPoolWithMaxWorkers(min(workers, runtime.NumCPU())),
 		concurrency.NewPoolWithBufferSize(n),
 	)
@@ -131,7 +131,7 @@ func (svc Runner) Run(w io.Writer, _type RunnerType, config, tmpl string, data a
 		return err
 	}
 
-	recordsPool, err := concurrency.NewPool(ctx, runner.Run,
+	recordsPool, err := concurrency.NewPool(ctx, concurrency.ToWorkerFunc(runner.Run),
 		concurrency.NewPoolWithMaxWorkers(workers),
 		concurrency.NewPoolWithBufferSize(n),
 	)
